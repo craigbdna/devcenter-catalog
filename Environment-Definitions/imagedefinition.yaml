@@ -1,0 +1,58 @@
+$schema: "1.0"
+name: devbox-customization
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
+
+tasks:
+  - name: ~/winget
+    parameters:
+      package: Python.Python.3.12
+      version: 3.11.0
+
+  - name: ~/winget
+    description: Install Git
+    parameters:
+      package:  Git.Git
+
+  - name: ~/winget
+    description: Install AZ Cli
+    parameters:
+      package:  Microsoft.AzureCLI
+
+  - name: ~/winget
+    description: Install Visual Studio Code
+    parameters:
+      package:  Microsoft.VisualStudioCode
+      
+  - name: ~/winget 
+    description: Install Android Platform Tools
+    parameters:
+      package: Google.PlatformTools
+
+
+userTasks:
+  - name: ~/powershell
+    parameters:
+      command: |
+        # Install WSL2 distros
+        wsl --install -d Ubuntu-22.04;
+
+        # Install VSCode extensions
+        code --install-extension ms-python.python;
+        code --install-extension ms-vscode-remote.remote-wsl;
+        code --install-extension d-biehl.robotcode
+    # Add Docker
+  - name: ~/powershell
+    parameters:
+      command: |
+        $Choco = "$Env:ProgramData/chocolatey/choco.exe"
+
+        if(-not (Test-Path "$Choco")){
+            Set-ExecutionPolicy Bypass -Scope Process -Force; 
+            [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+            Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        }
+        Write-Host "Start to install docker desktop"
+        choco install docker-desktop -y --no-progress
+        Write-Host "End to install docker desktop"
+
+        net localgroup docker-users "NT AUTHORITY\Authenticated Users" /ADD
